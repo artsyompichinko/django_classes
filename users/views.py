@@ -3,7 +3,7 @@ from django.contrib import auth, messages
 from django.urls import reverse
 from products.views import index
 from users.forms import UserLoginForm, UserRegistrationForm, UserProfileForm
-
+from products.models import Basket
 
 # Create your views here.
 def login(request):
@@ -45,7 +45,15 @@ def profile(request):
             print(form.errors)
     else:
         form = UserProfileForm(instance=request.user)
-    context = {'title': 'Store - Профиль', 'form': form}
+
+    baskets = Basket.objects.filter(user=request.user)
+
+    context = {'title': 'Store - Профиль',
+               'form': form,
+               'baskets': baskets,
+               'total_sum': sum(basket.sum() for basket in baskets),
+               'total_quantity': sum(basket.quantity for basket in baskets),
+               }
     return render(request, 'users/profile.html', context)
 
 
